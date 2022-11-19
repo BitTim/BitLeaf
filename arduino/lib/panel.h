@@ -6,6 +6,6 @@ struct Panel {
 	byte origin_addr;
 	byte sideA_addr;
 	byte sideB_addr;
-}
+};
 
 #endif // PANEL_H
