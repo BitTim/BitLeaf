@@ -12,6 +12,7 @@
 #define CON_PIN 7
 
 void(* resetFunc) (void) = 0;
+// TODO: replace delays with timeouts
 
 
 
