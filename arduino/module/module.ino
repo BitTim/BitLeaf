@@ -5,14 +5,14 @@
 
 #define TIMEOUT 3000
 
-#define RDYA_PIN 13
-#define RDYB_PIN 12
-#define CONA_PIN 11
-#define CONB_PIN 10
+#define RDYA_PIN 4
+#define RDYB_PIN 5
+#define CONA_PIN 6
+#define CONB_PIN 7
 
-#define RED_LED_PIN 7
-#define YELLOW_LED_PIN 6
-#define GREEN_LED_PIN 5
+#define RED_LED_PIN 8
+#define YELLOW_LED_PIN 9
+#define GREEN_LED_PIN 10
 
 void(* resetFunc) (void) = 0;
 
@@ -24,11 +24,9 @@ void(* resetFunc) (void) = 0;
 
 volatile byte addr = UNASS_ADDR;
 volatile byte recAddr = 0;
-volatile Packet packet;
+volatile byte inBuffer[MAX_PACKET_LEN] = { 0 };
 bool redOn = true;
-bool yellowOn = false;
 bool greenOn = false;
-volatile bool queueReset = false;
 
 
 
@@ -38,8 +36,6 @@ volatile bool queueReset = false;
 
 // TODO: save data from negotiate address and handle in separate onrequest handler which sends callback to hub
 
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-++++++++++++++++++++++++++++
 void negotiateAddress() {
   int timeout = 0;
   while(Wire.available() < 1 && timeout++ < TIMEOUT) { delay(1); }
@@ -55,9 +51,8 @@ void applyAddress()
   }
 
   addr = recAddr;
-
 	Wire.end();
-  delay(100);
+  
 	initI2C();
   setGreenLED();
 }
@@ -65,26 +60,23 @@ void applyAddress()
 void onReceive() {
 	// Construct packet
 	int idx = 0;
-	byte buffer[MAX_PACKET_LEN];
   
   int timeout = 0;
   while(Wire.available() < 1 && timeout++ < TIMEOUT) { delay(1); }
 
 	while(Wire.available() > 0) {				// Read available data into buffer
-		buffer[idx++] = Wire.read();
+		inBuffer[idx++] = Wire.read();
+    if(idx >= MAX_PACKET_LEN) break;
 	}
-
-  packet.destroy();
-	packet = Packet::deserialize(buffer);
 }
 
 void onRequest() {
 	// Interpret packet (See packet.h)
-	if(packet.cmd == 0x01) enableSide(true);
-	if(packet.cmd == 0x02) enableSide(false);
-	if(packet.cmd == 0x05) reset();
+	if(inBuffer[0] == Commands::eSideA) enableSide(true);
+	if(inBuffer[0] == Commands::eSideB) enableSide(false);
+	if(inBuffer[0] == Commands::reset)  reset();
 
-	packet.destroy();
+	memset(inBuffer, 0, MAX_PACKET_LEN);
 }
 
 
@@ -102,6 +94,7 @@ void reset()
 
 void initI2C() {
   Wire.begin(addr);
+  
 	if(addr == UNASS_ADDR) {
 		Wire.onReceive(negotiateAddress);
     Wire.onRequest(applyAddress);
@@ -112,7 +105,7 @@ void initI2C() {
 }
 
 void enableSide(bool sideA) { // if sideA is false, side B will be used
-	byte connected = digitalRead(sideA ? CONA_PIN : CONB_PIN) & 0xFF;
+  byte connected = digitalRead(sideA ? CONA_PIN : CONB_PIN) & 0xFF;
 
   if (connected > 0) {
 	  digitalWrite(sideA ? RDYA_PIN : RDYB_PIN, HIGH);

@@ -1,6 +1,5 @@
 #include <Wire.h>
 #include "packet.h"
-#include "panel.h"
 
 #define UNASS_ADDR 0x08
 #define MIN_ADDR 0x09
@@ -13,6 +12,19 @@
 #define CON_PIN 7
 
 void(* resetFunc) (void) = 0;
+
+
+
+// ===============================
+// Structs
+// ===============================
+
+struct Panel {
+	byte addr;
+	byte origin_addr;
+	byte sideA_addr;
+	byte sideB_addr;
+};
 
 
 
@@ -71,8 +83,8 @@ void checkSide(byte addr, bool sideA) { // If sideA is false, side B will be use
 
 	// Send request to discover side A
 	Wire.beginTransmission(addr);
-  Packet packet = sideA ? Packet::eSideA() : Packet::eSideB();
-	Wire.write(packet.serialize(), sizeof(packet));
+  byte packet[2] = { sideA ? Commands::eSideA : Commands::eSideB, 0 };
+	Wire.write(packet, 2);
 	Wire.endTransmission();
 
   Serial.print("Checking side ");
@@ -113,7 +125,6 @@ void checkSide(byte addr, bool sideA) { // If sideA is false, side B will be use
 
 void discoverPanel(int addr) {
   checkSide(addr, true);
-  delay(100);
   checkSide(addr, false);
 }
 
@@ -121,7 +132,6 @@ void startDiscovery() {
 	// Enable first panel
 	if(digitalRead(CON_PIN) == LOW) { return; } // No panel connected to HUB
 	digitalWrite(RDY_PIN, HIGH);
-  //delay(100);
 
 	byte addr = checkUnassigned();
   if(addr == 0) return;
