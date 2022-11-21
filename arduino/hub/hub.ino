@@ -7,12 +7,12 @@
 #define MAX_ADDR 0x77
 
 #define MAX_PANELS 32
+#define TIMEOUT 3000
 
 #define RDY_PIN 8
 #define CON_PIN 7
 
 void(* resetFunc) (void) = 0;
-// TODO: replace delays with timeouts
 
 
 
@@ -57,99 +57,71 @@ int idxToAddr(int addr) {
 	return addr + MIN_ADDR;
 }
 
-void resetAllPanels() {
-  digitalWrite(RDY_PIN, LOW);
+void checkSide(byte addr, bool sideA) { // If sideA is false, side B will be used
+  // Check if addr is available
+  byte error = checkAvailable(addr);
+  if(error != 0) {
+    Serial.print("Panel ");
+    Serial.print(addr);
+    Serial.print(" does not respond, error: ");
+    Serial.println(error);
 
-  for(int i = 0; i < MAX_PANELS; i++) {
-    byte addr = idxToAddr(i);
-    Wire.beginTransmission(addr);
-    int error = Wire.endTransmission();
-
-    if (error != 0) continue;
-
-    Wire.beginTransmission(addr);
-    Packet packet = Packet::reset();
-    Wire.write(packet.serialize(), sizeof(packet));
-    Wire.endTransmission();
-
-    Wire.requestFrom(addr, 0);
-    delay(10);
+    return;
   }
 
-  delay(100);
-}
-
-void discoverPanel(int addr) {
 	// Send request to discover side A
 	Wire.beginTransmission(addr);
-  Packet eSideA = Packet::eSideA();
-	Wire.write(eSideA.serialize(), sizeof(eSideA));
+  Packet packet = sideA ? Packet::eSideA() : Packet::eSideB();
+	Wire.write(packet.serialize(), sizeof(packet));
 	Wire.endTransmission();
 
-  Serial.print("Checked side A of ");
+  Serial.print("Checking side ");
+  Serial.print(sideA ? "A" : "B");
+  Serial.print(" of panel ");
   Serial.println(addr);
 
 	// Request response
 	byte ret = 0;
-	Wire.requestFrom(addr, 1);
-  int timeout = 0;
-  while(Wire.available() < 1 && timeout++ < 30) { delay(10); }
-	if(Wire.available()) ret = Wire.read();
+	int len = Wire.requestFrom(addr, 1);
+  if (len == 0) {
+    Serial.print("Panel ");
+    Serial.print(addr);
+    Serial.println(" did not respond");
+  } else {
+    int timeout = 0;
+    while(Wire.available() < 1 && timeout++ < TIMEOUT) { delay(1); }
+	  if(Wire.available() > 0) ret = Wire.read();
+  }
 
-  Serial.print("Connection state: ");
-  Serial.println(ret == 1 ? "true" : "false");
-  delay(100);
+  Serial.println(ret == 1 ? "Connected" : "Not connected");
 
-	if(ret == 1) {											// If a panel is connected to Side A
-		byte sideA_addr = checkUnassigned();				// Assign and retrieve address for new panel
-		panels[addrToIdx(addr)].sideA_addr = sideA_addr;	// Set variables for tree structure
-		panels[addrToIdx(sideA_addr)].addr = sideA_addr;
-		panels[addrToIdx(sideA_addr)].origin_addr = addr;
+	if(ret == 1) {											// If a panel is connected to Side
+		byte side_addr = checkUnassigned();				// Assign and retrieve address for new panel
 
-		discoverPanel(sideA_addr);							// Recursivity
+		if(sideA) panels[addrToIdx(addr)].sideA_addr = side_addr;	// Set variables for tree structure
+    else panels[addrToIdx(addr)].sideB_addr = side_addr;
+    
+		panels[addrToIdx(side_addr)].addr = side_addr;
+		panels[addrToIdx(side_addr)].origin_addr = addr;
+
+		discoverPanel(side_addr);							// Recursivity
 	} else {
-		panels[addrToIdx(addr)].sideA_addr = 0;				// No panel connected to side A
+		if(sideA) panels[addrToIdx(addr)].sideA_addr = 0;				// No panel connected to side
+    else panels[addrToIdx(addr)].sideB_addr = 0;
 	}
+}
 
-	// Repeat with side B
-	Wire.beginTransmission(addr);
-  Packet eSideB = Packet::eSideB();
-	Wire.write(eSideB.serialize(), sizeof(eSideB));
-	Wire.endTransmission();
-
-  Serial.print("Checked side B of ");
-  Serial.println(addr);
-
-	// Request response
-	ret = 0;
-	Wire.requestFrom(addr, 1);
-  timeout = 0;
-  while(Wire.available() < 1 && timeout++ < 30) { delay(10); }
-	if(Wire.available()) ret = Wire.read();
-
-  Serial.print("Connection state: ");
-  Serial.println(ret == 1 ? "true" : "false");
+void discoverPanel(int addr) {
+  checkSide(addr, true);
   delay(100);
-
-	// If a panel is connected to Side B
-	if(ret == 1) {
-		byte sideB_addr = checkUnassigned();				// Assign and retrieve address for new panel
-		panels[addrToIdx(addr)].sideB_addr = sideB_addr;	// Set variables for tree structure
-		panels[addrToIdx(sideB_addr)].addr = sideB_addr;
-		panels[addrToIdx(sideB_addr)].origin_addr = addr;
-
-		discoverPanel(sideB_addr);							// Recursivity
-	} else {
-		panels[addrToIdx(addr)].sideB_addr = 0;				// No panel connected to side B
-	}
+  checkSide(addr, false);
 }
 
 void startDiscovery() {
 	// Enable first panel
-	digitalWrite(RDY_PIN, HIGH);
-  delay(10);
 	if(digitalRead(CON_PIN) == LOW) { return; } // No panel connected to HUB
-  delay(100);
+	digitalWrite(RDY_PIN, HIGH);
+  //delay(100);
 
 	byte addr = checkUnassigned();
   if(addr == 0) return;
@@ -168,19 +140,41 @@ byte assignAddress() {
   Serial.print(addr);
   Serial.println(" to new panel");
 
-
 	Wire.beginTransmission(UNASS_ADDR);
 	Wire.write(addr);
 	Wire.endTransmission();
 
+  byte ret = 0;
+	Wire.requestFrom(UNASS_ADDR, 0);
+
 	return addr;
 }
 
-byte checkUnassigned() {
-	Wire.beginTransmission(UNASS_ADDR);
-	byte error = Wire.endTransmission();
+byte checkAvailable(byte addr) {
+  int timeout = 0;
+  byte error = 1;
 
-	if(error != 0) return 0;
+  Serial.print("Checking availability of panel ");
+  Serial.println(addr);  
+
+  while(error != 0 && timeout++ < TIMEOUT) {
+	  Wire.beginTransmission(addr);
+	  error = Wire.endTransmission();
+    delay(1);
+  }
+
+  Serial.print("Result: ");
+  Serial.println(error);
+  return error;
+}
+
+byte checkUnassigned() {
+  byte error = checkAvailable(UNASS_ADDR);
+	if(error != 0) {
+    Serial.println("No unassigned devices");
+    return 0;
+  }
+
 	byte addr = assignAddress();
 	return addr;
 }
@@ -197,6 +191,9 @@ void hotplug() {
 void initPins() {
   pinMode(RDY_PIN, OUTPUT);
   pinMode(CON_PIN, INPUT);
+
+  digitalWrite(SDA, LOW);
+  digitalWrite(SCL, LOW);
 }
 
 
@@ -210,10 +207,11 @@ void setup() {
   
 	Serial.begin(9600);
 	Wire.begin();
-  resetAllPanels();
+  Wire.setWireTimeout(TIMEOUT, false);
+
+  //resetAllPanels();
 	startDiscovery();
 
-  Serial.println("");
 	Serial.println("Finished discovery");
   Serial.println("");
   
@@ -238,5 +236,30 @@ void setup() {
 
 void loop() {
 	// checkUnassigned();
-	// delay(10);
+  Serial.println("");
+  Serial.println(">");
+  while (Serial.available() == 0) {}     //wait for data available
+  String teststr = Serial.readString();  //read until timeout
+  teststr.trim();                        // remove any \r \n whitespace at the end of the String
+
+  if(teststr == "scan")
+  {
+    int numFound = 0;
+    
+    for(int i = UNASS_ADDR; i < MAX_ADDR; i++)
+    {
+      Wire.beginTransmission(i);
+      byte err = Wire.endTransmission();
+
+      if (err == 0) {
+        Serial.print("Device found at: ");
+        Serial.println(i);
+        numFound++;
+      }     
+    }    
+
+    Serial.print("Found ");
+    Serial.print(numFound);
+    Serial.println(" devices");
+  }
 }

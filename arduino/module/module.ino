@@ -3,14 +3,16 @@
 
 #define UNASS_ADDR 0x08
 
-#define RDYO_PIN 15
+#define TIMEOUT 3000
+
 #define RDYA_PIN 13
 #define RDYB_PIN 12
 #define CONA_PIN 11
 #define CONB_PIN 10
 
 #define RED_LED_PIN 7
-#define GREEN_LED_PIN 6
+#define YELLOW_LED_PIN 6
+#define GREEN_LED_PIN 5
 
 void(* resetFunc) (void) = 0;
 
@@ -20,10 +22,13 @@ void(* resetFunc) (void) = 0;
 //  Variables
 // ===============================
 
-byte addr = UNASS_ADDR;
-Packet packet;
+volatile byte addr = UNASS_ADDR;
+volatile byte recAddr = 0;
+volatile Packet packet;
 bool redOn = true;
+bool yellowOn = false;
 bool greenOn = false;
+volatile bool queueReset = false;
 
 
 
@@ -31,17 +36,28 @@ bool greenOn = false;
 // Handlers
 // ===============================
 
+// TODO: save data from negotiate address and handle in separate onrequest handler which sends callback to hub
+
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+++++++++++++++++++++++++++++
 void negotiateAddress() {
-	byte dat = 0;
+  int timeout = 0;
+  while(Wire.available() < 1 && timeout++ < TIMEOUT) { delay(1); }
+  
+  if(Wire.available() > 0) { recAddr = Wire.read(); }
+}
 
-  if(Wire.available() == 1) {
-		dat = Wire.read();
-	}
+void applyAddress()
+{
+  if(recAddr <= UNASS_ADDR) {
+    reset();
+    return;
+  }
 
-  if(dat > UNASS_ADDR) addr = dat;
-  else return;
+  addr = recAddr;
 
 	Wire.end();
+  delay(100);
 	initI2C();
   setGreenLED();
 }
@@ -50,20 +66,23 @@ void onReceive() {
 	// Construct packet
 	int idx = 0;
 	byte buffer[MAX_PACKET_LEN];
+  
+  int timeout = 0;
+  while(Wire.available() < 1 && timeout++ < TIMEOUT) { delay(1); }
 
-	while(Wire.available()) {				// Read available data into buffer
+	while(Wire.available() > 0) {				// Read available data into buffer
 		buffer[idx++] = Wire.read();
 	}
 
+  packet.destroy();
 	packet = Packet::deserialize(buffer);
-  blinkGreenLED();
 }
 
 void onRequest() {
 	// Interpret packet (See packet.h)
-	if(packet.cmd == 0x01) enableSideA();
-	if(packet.cmd == 0x02) enableSideB();
-	if(packet.cmd == 0x05) resetFunc();
+	if(packet.cmd == 0x01) enableSide(true);
+	if(packet.cmd == 0x02) enableSide(false);
+	if(packet.cmd == 0x05) reset();
 
 	packet.destroy();
 }
@@ -74,34 +93,30 @@ void onRequest() {
 // Functions
 // ===============================
 
+void reset()
+{
+  Wire.write(1);
+  Wire.end();
+  resetFunc();
+}
+
 void initI2C() {
-	Wire.begin(addr);
-	Wire.onRequest(onRequest);
+  Wire.begin(addr);
 	if(addr == UNASS_ADDR) {
 		Wire.onReceive(negotiateAddress);
+    Wire.onRequest(applyAddress);
 	} else {
 		Wire.onReceive(onReceive);
+    Wire.onRequest(onRequest);
 	}
 }
 
-void enableSideA() {
-	digitalWrite(RDYA_PIN, HIGH);
-  delay(10);
-	byte connected = digitalRead(CONA_PIN) & 0xFF;
+void enableSide(bool sideA) { // if sideA is false, side B will be used
+	byte connected = digitalRead(sideA ? CONA_PIN : CONB_PIN) & 0xFF;
 
-  if (connected > 0) blinkGreenLED();
-  else blinkRedLED();
-
-	Wire.write(connected);
-}
-
-void enableSideB() {
-	digitalWrite(RDYB_PIN, HIGH);
-  delay(10);
-	byte connected =  digitalRead(CONB_PIN) & 0xFF;
-
-  if (connected > 0) blinkGreenLED();
-  else blinkRedLED();
+  if (connected > 0) {
+	  digitalWrite(sideA ? RDYA_PIN : RDYB_PIN, HIGH);
+  }
 
 	Wire.write(connected);
 }
@@ -120,23 +135,10 @@ void setGreenLED() {
 	digitalWrite(GREEN_LED_PIN, HIGH);
 }
 
-void blinkRedLED() {
-	digitalWrite(RED_LED_PIN, redOn ? LOW : HIGH);
-  delay(50);
-	digitalWrite(RED_LED_PIN, redOn ? HIGH : LOW);
-}
-
-void blinkGreenLED() {
-	digitalWrite(GREEN_LED_PIN, greenOn ? LOW : HIGH);
-  delay(50);
-	digitalWrite(GREEN_LED_PIN, greenOn ? HIGH : LOW);
-}
-
 void initPins() {
-  pinMode(RED_LED_PIN, OUTPUT);
+  pinMode(RED_LED_PIN, OUTPUT);  
   pinMode(GREEN_LED_PIN, OUTPUT);
-
-  pinMode(RDYO_PIN, INPUT);  
+  
   pinMode(RDYA_PIN, OUTPUT);  
   pinMode(RDYB_PIN, OUTPUT);  
   pinMode(CONA_PIN, INPUT);  
@@ -144,6 +146,9 @@ void initPins() {
 
   digitalWrite(RDYA_PIN, LOW);
   digitalWrite(RDYB_PIN, LOW);
+
+  digitalWrite(SDA, LOW);
+  digitalWrite(SCL, LOW);
 }
 
 
@@ -157,11 +162,7 @@ void setup() {
   initPins();
 	setRedLED();
   
-	while (digitalRead(RDYO_PIN) == LOW) delay(1);
-  blinkRedLED();
-  
 	initI2C();
-  blinkGreenLED();
 }
 
 void loop() {
