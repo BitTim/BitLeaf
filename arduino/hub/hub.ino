@@ -91,17 +91,19 @@ void unregisterPanel(byte side_addr, byte origin_addr, bool sideA) {
 		unregisterPanel(panels[addrToIdx(side_addr)].sideB_addr, side_addr, false);
 	}
 
-	usedAddr[addToIdx(side_addr)] = false;						// Mark address as free
+	usedAddr[addToIdx(side_addr)] = false;							// Mark address as free
 
-	panels[addrToIdx(side_addr)].addr = 0;						// Reset variables of disconnected panel
+	panels[addrToIdx(side_addr)].addr = 0;							// Reset variables of disconnected panel
 	panels[addrToIdx(side_addr)].origin_addr = 0;
 
-	if(sideA) panels[addrToIdx(origin_addr)].sideA_addr = 0;	// Reset variables for current panel
-	else panels[addrToIdx(origin_addr)].sideB_addr = 0;
+	if(origin_addr >= MIN_ADDR) {
+		if(sideA) panels[addrToIdx(origin_addr)].sideA_addr = 0;	// Reset variables for current panel
+		else panels[addrToIdx(origin_addr)].sideB_addr = 0;
+	}
 }
 
-void checkSide(byte addr, bool sideA) { 						// If sideA is false, side B will be used
-  	byte error = checkAvailable(addr);							// Check if addr is available
+void checkSide(byte addr, bool sideA) { 							// If sideA is false, side B will be used
+  	byte error = checkAvailable(addr);								// Check if addr is available
   	if(error != 0) {
 		Serial.print("Panel ");
 		Serial.print(addr);
@@ -161,14 +163,18 @@ void discoverPanel(int addr) {
 
 void startDiscovery() {
 	// Enable first panel
-	if(digitalRead(CON_PIN) == LOW) { return; } // No panel connected to HUB
-	digitalWrite(RDY_PIN, HIGH);
+	if(digitalRead(CON_PIN) == LOW) {  										// No panel connected to HUB
+		if(panel[0].addr != 0) { unregisterPanel(MIN_ADDR, 1, true); }
+		return;
+	}
 
-	byte addr = checkUnassigned();
-  	if(addr == 0) return;
+	if(panel[0].addr == 0) {												// New panel connected and has no addr
+		byte addr = checkUnassigned();
+  		if(addr == 0) return;
 
-	panels[0].addr = addr;
-	panels[0].origin_addr = 1; // 1 represents Hub
+		panels[0].addr = addr;
+		panels[0].origin_addr = 1; // 1 represents Hub
+	}
 
 	// Recursively discover connected panels
 	discoverPanel(addr);
@@ -220,21 +226,14 @@ byte checkUnassigned() {
 	return addr;
 }
 
-void hotplug() {
-	// Hotplug support:
-	// Enable all sides with packets
-	// When new module connected to already enabled side, interrupt
-	// Interrupted module sends address to hub
-	// Hub can then assign the origin address for new module and put it into tree structure 
-	// Same applies for disconnecting
-}
-
 void initPins() {
 	pinMode(RDY_PIN, OUTPUT);
 	pinMode(CON_PIN, INPUT);
 
 	digitalWrite(SDA, LOW);
 	digitalWrite(SCL, LOW);
+
+	digitalWrite(RDY_PIN, HIGH);
 }
 
 
@@ -275,5 +274,8 @@ void setup() {
 }
 
 void loop() {
-	
+	startDiscovery();
+	// Run animation and other stuff
+
+	delay(1);
 }
