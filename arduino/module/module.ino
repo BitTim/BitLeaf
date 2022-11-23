@@ -28,6 +28,7 @@ volatile byte inBuffer[MAX_PACKET_LEN] = { 0 };
 
 bool redOn = true;
 bool greenOn = false;
+bool yellowOn = false;
 
 
 
@@ -73,7 +74,8 @@ void onRequest() {
 	// Interpret packet (See packet.h)
 	if(inBuffer[0] == Commands::sideA) checkSide(true);
 	if(inBuffer[0] == Commands::sideB) checkSide(false);
-	if(inBuffer[0] == Commands::reset)  reset();
+	if(inBuffer[0] == Commands::reset) reset();
+	if(inBuffer[0] == Commands::toggleLED) toggleYellowLED();
 
 	memset(inBuffer, 0, MAX_PACKET_LEN);
 }
@@ -123,8 +125,14 @@ void setGreenLED() {
 	digitalWrite(GREEN_LED_PIN, HIGH);
 }
 
+void toggleYellowLED() {
+  digitalWrite(YELLOW_LED_PIN, yellowOn ? LOW : HIGH);
+  yellowOn = !yellowOn;
+}
+
 void initPins() {
   pinMode(RED_LED_PIN, OUTPUT);  
+  pinMode(YELLOW_LED_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
   
   pinMode(RDYA_PIN, OUTPUT);  

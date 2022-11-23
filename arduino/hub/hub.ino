@@ -7,6 +7,7 @@
 
 #define MAX_PANELS 32
 #define TIMEOUT 3000
+#define FPS 48
 
 #define RDY_PIN 8
 #define CON_PIN 7
@@ -33,8 +34,11 @@ struct Panel {
 // ===============================
 
 Panel panels[MAX_PANELS] = { {0, 0, 0, 0} };
+bool panelsChanged = false;
 bool usedAddr[MAX_PANELS] = { false };
+int connectedPanels = 0;
 
+int frame = 0;
 
 
 
@@ -47,7 +51,7 @@ bool usedAddr[MAX_PANELS] = { false };
 
 
 // ===============================
-// Functions
+// Protocol Functions
 // ===============================
 
 byte getNextAddress() {
@@ -56,6 +60,7 @@ byte getNextAddress() {
 		if(usedAddr[i] == false) {
 			usedAddr[i] = true;
 			addr = idxToAddr(i);
+      break;
 		}
 	}
 
@@ -66,11 +71,11 @@ int addrToIdx(int addr) {
 	return addr - MIN_ADDR;
 }
 
-int idxToAddr(int addr) {
-	return addr + MIN_ADDR;
+int idxToAddr(int idx) {
+	return idx + MIN_ADDR;
 }
 
-void registerPanel(byte side_addr, byte origin_addr, bool sideA) {
+void registerPanel(byte origin_addr, bool sideA) {
 	byte side_addr = checkUnassigned();									// Get new address
 
 	if(sideA) panels[addrToIdx(origin_addr)].sideA_addr = side_addr;	// Set variables for origin panel
@@ -79,7 +84,9 @@ void registerPanel(byte side_addr, byte origin_addr, bool sideA) {
 	panels[addrToIdx(side_addr)].addr = side_addr;						// Set variables for current panel
 	panels[addrToIdx(side_addr)].origin_addr = origin_addr;
 
-	addresses[addrToIdx(side_addr)]
+	usedAddr[addrToIdx(side_addr)];
+  panelsChanged = true;
+  connectedPanels++;
 }
 
 void unregisterPanel(byte side_addr, byte origin_addr, bool sideA) {
@@ -91,7 +98,7 @@ void unregisterPanel(byte side_addr, byte origin_addr, bool sideA) {
 		unregisterPanel(panels[addrToIdx(side_addr)].sideB_addr, side_addr, false);
 	}
 
-	usedAddr[addToIdx(side_addr)] = false;							// Mark address as free
+	usedAddr[addrToIdx(side_addr)] = false;							// Mark address as free
 
 	panels[addrToIdx(side_addr)].addr = 0;							// Reset variables of disconnected panel
 	panels[addrToIdx(side_addr)].origin_addr = 0;
@@ -100,58 +107,43 @@ void unregisterPanel(byte side_addr, byte origin_addr, bool sideA) {
 		if(sideA) panels[addrToIdx(origin_addr)].sideA_addr = 0;	// Reset variables for current panel
 		else panels[addrToIdx(origin_addr)].sideB_addr = 0;
 	}
+
+  panelsChanged = true;
+  connectedPanels--;
 }
 
 void checkSide(byte addr, bool sideA) { 							// If sideA is false, side B will be used
-  	byte error = checkAvailable(addr);								// Check if addr is available
-  	if(error != 0) {
-		Serial.print("Panel ");
-		Serial.print(addr);
-		Serial.print(" does not respond, error: ");
-		Serial.println(error);
-
-		return;
-	}
+  byte error = checkAvailable(addr);								  // Check if addr is available
+  if(error != 0) { return; }
 
 	// Send request to discover side A
+  byte packet[2] = { sideA ? Commands::sideA : Commands::sideB, 0 };
 	Wire.beginTransmission(addr);
-  	byte packet[2] = { sideA ? Commands::sideA : Commands::sideB, 0 };
 	Wire.write(packet, 2);
 	Wire.endTransmission();
-
-	Serial.print("Checking side ");
-	Serial.print(sideA ? "A" : "B");
-	Serial.print(" of panel ");
-	Serial.println(addr);
 
 	// Request response
 	byte ret = 0;
 	int len = Wire.requestFrom(addr, 1);
-	if (len == 0) {
-		Serial.print("Panel ");
-		Serial.print(addr);
-		Serial.println(" did not respond");
-	} else {
+	if (len > 0) {
 		int timeout = 0;
 		while(Wire.available() < 1 && timeout++ < TIMEOUT) { delay(1); }
-	  	if(Wire.available() > 0) ret = Wire.read();
-  	}
-
-  	Serial.println(ret == 1 ? "Connected" : "Not connected");
+    if(Wire.available() > 0) ret = Wire.read();
+  }
 
 	byte side_addr = 0;
-	if(sideA) byte side_addr = panels[addrToIdx(addr)].sideA_addr;
-	else byte side_addr = panels[addrToIdx(addr)].sideB_addr;
+	if(sideA) side_addr = panels[addrToIdx(addr)].sideA_addr;
+	else side_addr = panels[addrToIdx(addr)].sideB_addr;
 
 	if(ret == 1) {												// If a panel is connected to Side
 		if (side_addr == 0) {
-			registerPanel(origin_addr, sideA);
-		}
-
-		discoverPanel(side_addr);								// Recursivity
+			registerPanel(addr, sideA);
+		} else {
+		  discoverPanel(side_addr);								// Recursivity
+    }      
 	} else {
 		if (side_addr != 0) {
-			unregisterPanel(side_addr, origin_addr, sideA);
+			unregisterPanel(side_addr, addr, sideA);
 		}
 	}
 }
@@ -162,30 +154,28 @@ void discoverPanel(int addr) {
 }
 
 void startDiscovery() {
-	// Enable first panel
-	if(digitalRead(CON_PIN) == LOW) {  										// No panel connected to HUB
-		if(panel[0].addr != 0) { unregisterPanel(MIN_ADDR, 1, true); }
+	if(digitalRead(CON_PIN) == LOW) {  										            // No panel connected to HUB
+		if(panels[addrToIdx(MIN_ADDR)].addr != 0) {
+      unregisterPanel(MIN_ADDR, 1, true);
+    }
 		return;
 	}
 
-	if(panel[0].addr == 0) {												// New panel connected and has no addr
+	if(panels[addrToIdx(MIN_ADDR)].addr == 0) {												// New panel connected and has no addr
 		byte addr = checkUnassigned();
-  		if(addr == 0) return;
+  	if(addr == 0) return;
 
-		panels[0].addr = addr;
-		panels[0].origin_addr = 1; // 1 represents Hub
+		panels[addrToIdx(MIN_ADDR)].addr = addr;
+		panels[addrToIdx(MIN_ADDR)].origin_addr = 1;                    // 1 represents Hub
+
+    connectedPanels++;
 	}
 
-	// Recursively discover connected panels
-	discoverPanel(addr);
+	discoverPanel(MIN_ADDR);	                                        // Recursively discover connected panels
 }
 
 byte assignAddress() {
 	byte addr = getNextAddress();
-
-	Serial.print("Assigning address ");
-	Serial.print(addr);
-	Serial.println(" to new panel");
 
 	Wire.beginTransmission(UNASS_ADDR);
 	Wire.write(addr);
@@ -201,30 +191,58 @@ byte checkAvailable(byte addr) {
 	int timeout = 0;
 	byte error = 1;
 
-	Serial.print("Checking availability of panel ");
-	Serial.println(addr);  
-
 	while(error != 0 && timeout++ < TIMEOUT) {
 		Wire.beginTransmission(addr);
 		error = Wire.endTransmission();
 		delay(1);
 	}
-
-	Serial.print("Result: ");
-	Serial.println(error);
 	return error;
 }
 
 byte checkUnassigned() {
 	byte error = checkAvailable(UNASS_ADDR);
-	if(error != 0) {
-		Serial.println("No unassigned devices");
-		return 0;
-	}
+	if(error != 0) { return 0; }
 
 	byte addr = assignAddress();
 	return addr;
 }
+
+
+
+// ===============================
+// Animation Functions
+// ===============================
+
+void advanceAnimation() {           // Sample animation for testing
+  int frameMultiplyer = floor((double) FPS / (double) connectedPanels);
+
+  if(frame % frameMultiplyer == 0) {
+    byte addr = idxToAddr(frame / frameMultiplyer);
+    
+    Serial.println(frame);
+    Serial.println(frameMultiplyer);
+    Serial.println(addr);
+    Serial.println();
+
+    if(checkAvailable(addr) != 0) return;
+
+    byte packet[2] = {Commands::toggleLED, 0};
+    Wire.beginTransmission(addr);
+    Wire.write(packet, 2);
+    Wire.endTransmission();
+
+    Wire.requestFrom(addr, 0);
+  }
+  
+  frame++;
+  if(frame >= FPS) frame = 0;
+}
+
+
+
+// ===============================
+// Util Functions
+// ===============================
 
 void initPins() {
 	pinMode(RDY_PIN, OUTPUT);
@@ -243,39 +261,41 @@ void initPins() {
 // ===============================
 
 void setup() {
-  	initPins();
+  initPins();
   
 	Serial.begin(9600);
 	Wire.begin();
 	Wire.setWireTimeout(TIMEOUT, false);
-
-	startDiscovery();
-
-	Serial.println("Finished discovery");
-	Serial.println("");
-	
-	for(int i = 0; i < MAX_PANELS; i++) {
-		if(panels[i].addr == 0) continue;
-
-		Serial.println("----------------");
-		
-			Serial.print("Panel Address: ");
-		Serial.println(panels[i].addr);
-
-		Serial.print("Origin: ");
-		Serial.println(panels[i].origin_addr);
-
-		Serial.print("Side A: ");
-		Serial.println(panels[i].sideA_addr);
-		
-		Serial.print("Side B: ");
-		Serial.println(panels[i].sideB_addr);
-	}
 }
 
 void loop() {
 	startDiscovery();
-	// Run animation and other stuff
+  
+  if(panelsChanged) {
+    panelsChanged = false;
 
-	delay(1);
+	  for(int i = 0; i < MAX_PANELS; i++) {
+		  if(panels[i].addr == 0) continue;
+		
+			Serial.print("Panel Address: ");
+      Serial.println(panels[i].addr);
+
+      Serial.print("Origin: ");
+      Serial.println(panels[i].origin_addr);
+
+      Serial.print("Side A: ");
+      Serial.println(panels[i].sideA_addr);
+      
+      Serial.print("Side B: ");
+      Serial.println(panels[i].sideB_addr);
+
+      Serial.println("----------------");
+    }
+
+    Serial.println("================");
+    Serial.println("");
+  }
+	
+  advanceAnimation();
+	delay(1000 / FPS);
 }

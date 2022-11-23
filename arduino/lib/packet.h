@@ -26,6 +26,7 @@ struct Commands {
 		ledBright,
 		panelCol,
 		panelBright,
+    toggleLED,
 	};
 };
 
