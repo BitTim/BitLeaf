@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "Arduino-nano-33")(type "KiCad")(uri "C:/Users/tim/Documents/KiCad/library/Nano_33/lib/Arduino-nano-33.kicad_sym")(options "")(descr ""))
+)

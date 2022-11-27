@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>P:\PCBs\BitLeaf\Module\Module.kicad_sch</source>
+    <date>23.11.2022 19:16:53</date>
+    <tool>Eeschema (6.0.9)</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title/>
+        <company/>
+        <rev/>
+        <date/>
+        <source>Module.kicad_sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="D1">
+      <value>WS2812B</value>
+      <footprint>LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm</footprint>
+      <datasheet>https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf</datasheet>
+      <libsource lib="LED" part="WS2812B" description="RGB LED with integrated controller"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9ecd2bf7-a2cb-426c-a089-56e64ac51e13</tstamps>
+    </comp>
+    <comp ref="D2">
+      <value>WS2812B</value>
+      <footprint>LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm</footprint>
+      <datasheet>https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf</datasheet>
+      <libsource lib="LED" part="WS2812B" description="RGB LED with integrated controller"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6f019695-3354-4032-be56-ad6578cadf6c</tstamps>
+    </comp>
+    <comp ref="D3">
+      <value>WS2812B</value>
+      <footprint>LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm</footprint>
+      <datasheet>https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf</datasheet>
+      <libsource lib="LED" part="WS2812B" description="RGB LED with integrated controller"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e2ebba08-8e69-456a-a32e-d5d11c1c434c</tstamps>
+    </comp>
+    <comp ref="D4">
+      <value>WS2812B</value>
+      <footprint>LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm</footprint>
+      <datasheet>https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf</datasheet>
+      <libsource lib="LED" part="WS2812B" description="RGB LED with integrated controller"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>510d85d9-b873-4e85-88c0-10cf69b8b7aa</tstamps>
+    </comp>
+    <comp ref="D5">
+      <value>WS2812B</value>
+      <footprint>LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm</footprint>
+      <datasheet>https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf</datasheet>
+      <libsource lib="LED" part="WS2812B" description="RGB LED with integrated controller"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8f1dc978-8be1-4173-b95b-2e0eb830601a</tstamps>
+    </comp>
+    <comp ref="D6">
+      <value>WS2812B</value>
+      <footprint>LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm</footprint>
+      <datasheet>https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf</datasheet>
+      <libsource lib="LED" part="WS2812B" description="RGB LED with integrated controller"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9faa72fa-ca53-4b5f-b561-16824bcbd94e</tstamps>
+    </comp>
+    <comp ref="J1">
+      <value>Conn_01x06</value>
+      <libsource lib="Connector_Generic" part="Conn_01x06" description="Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>09d7b858-471f-4b6a-b398-3c3cb004db8b</tstamps>
+    </comp>
+    <comp ref="J2">
+      <value>Conn_01x06_Female</value>
+      <libsource lib="Connector" part="Conn_01x06_Female" description="Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ac7e4a15-9f2d-414c-ad21-c291f8f74bb5</tstamps>
+    </comp>
+    <comp ref="J3">
+      <value>Conn_01x06_Female</value>
+      <libsource lib="Connector" part="Conn_01x06_Female" description="Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>96eb5828-a0e6-4612-9d68-6be98e8a38ad</tstamps>
+    </comp>
+    <comp ref="U1">
+      <value>ATtiny44-20SS</value>
+      <footprint>Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</footprint>
+      <datasheet>http://ww1.microchip.com/downloads/en/DeviceDoc/doc8006.pdf</datasheet>
+      <libsource lib="MCU_Microchip_ATtiny" part="ATtiny44-20SS" description="20MHz, 4kB Flash, 256B SRAM, 256B EEPROM, debugWIRE, SOIC-14"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="Module.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c176f789-7426-4d5d-a554-7b5024ae325c</tstamps>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="Connector" part="Conn_01x06_Female">
+      <description>Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x06_Female</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+        <pin num="5" name="Pin_5" type="passive"/>
+        <pin num="6" name="Pin_6" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector_Generic" part="Conn_01x06">
+      <description>Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x06</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+        <pin num="5" name="Pin_5" type="passive"/>
+        <pin num="6" name="Pin_6" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="LED" part="WS2812B">
+      <description>RGB LED with integrated controller</description>
+      <docs>https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf</docs>
+      <footprints>
+        <fp>LED*WS2812*PLCC*5.0x5.0mm*P3.2mm*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">WS2812B</field>
+        <field name="Footprint">LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm</field>
+        <field name="Datasheet">https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VDD" type="power_in"/>
+        <pin num="2" name="DOUT" type="output"/>
+        <pin num="3" name="VSS" type="power_in"/>
+        <pin num="4" name="DIN" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="MCU_Microchip_ATtiny" part="ATtiny44-20SS">
+      <description>20MHz, 4kB Flash, 256B SRAM, 256B EEPROM, debugWIRE, SOIC-14</description>
+      <docs>http://ww1.microchip.com/downloads/en/DeviceDoc/doc8006.pdf</docs>
+      <footprints>
+        <fp>SOIC*3.9x8.7mm*P1.27mm*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">ATtiny44-20SS</field>
+        <field name="Footprint">Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</field>
+        <field name="Datasheet">http://ww1.microchip.com/downloads/en/DeviceDoc/doc8006.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VCC" type="power_in"/>
+        <pin num="2" name="XTAL1/PB0" type="bidirectional"/>
+        <pin num="3" name="XTAL2/PB1" type="bidirectional"/>
+        <pin num="4" name="~{RESET}/PB3" type="bidirectional"/>
+        <pin num="5" name="PB2" type="bidirectional"/>
+        <pin num="6" name="PA7" type="bidirectional"/>
+        <pin num="7" name="PA6" type="bidirectional"/>
+        <pin num="8" name="PA5" type="bidirectional"/>
+        <pin num="9" name="PA4" type="bidirectional"/>
+        <pin num="10" name="PA3" type="bidirectional"/>
+        <pin num="11" name="PA2" type="bidirectional"/>
+        <pin num="12" name="PA1" type="bidirectional"/>
+        <pin num="13" name="AREF/PA0" type="bidirectional"/>
+        <pin num="14" name="GND" type="power_in"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="Connector">
+      <uri>S:\KiCad\share\kicad\symbols\/Connector.kicad_sym</uri>
+    </library>
+    <library logical="Connector_Generic">
+      <uri>S:\KiCad\share\kicad\symbols\/Connector_Generic.kicad_sym</uri>
+    </library>
+    <library logical="LED">
+      <uri>S:\KiCad\share\kicad\symbols\/LED.kicad_sym</uri>
+    </library>
+    <library logical="MCU_Microchip_ATtiny">
+      <uri>S:\KiCad\share\kicad\symbols\/MCU_Microchip_ATtiny.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="Net-(D1-Pad2)">
+      <node ref="D1" pin="2" pinfunction="DOUT" pintype="output"/>
+      <node ref="D2" pin="4" pinfunction="DIN" pintype="input"/>
+    </net>
+    <net code="2" name="Net-(D2-Pad2)">
+      <node ref="D2" pin="2" pinfunction="DOUT" pintype="output"/>
+      <node ref="D3" pin="4" pinfunction="DIN" pintype="input"/>
+    </net>
+    <net code="3" name="Net-(D2-Pad3)">
+      <node ref="D2" pin="3" pinfunction="VSS" pintype="power_in"/>
+      <node ref="D5" pin="3" pinfunction="VSS" pintype="power_in"/>
+    </net>
+    <net code="4" name="Net-(D3-Pad2)">
+      <node ref="D3" pin="2" pinfunction="DOUT" pintype="output"/>
+      <node ref="D4" pin="4" pinfunction="DIN" pintype="input"/>
+    </net>
+    <net code="5" name="Net-(D4-Pad2)">
+      <node ref="D4" pin="2" pinfunction="DOUT" pintype="output"/>
+      <node ref="D5" pin="4" pinfunction="DIN" pintype="input"/>
+    </net>
+    <net code="6" name="Net-(D5-Pad2)">
+      <node ref="D5" pin="2" pinfunction="DOUT" pintype="output"/>
+      <node ref="D6" pin="4" pinfunction="DIN" pintype="input"/>
+    </net>
+    <net code="7" name="Net-(U1-Pad1)">
+      <node ref="D1" pin="1" pinfunction="VDD" pintype="power_in"/>
+      <node ref="D2" pin="1" pinfunction="VDD" pintype="power_in"/>
+      <node ref="D3" pin="1" pinfunction="VDD" pintype="power_in"/>
+      <node ref="D4" pin="1" pinfunction="VDD" pintype="power_in"/>
+      <node ref="D5" pin="1" pinfunction="VDD" pintype="power_in"/>
+      <node ref="D6" pin="1" pinfunction="VDD" pintype="power_in"/>
+      <node ref="J1" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J1" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="J2" pin="6" pinfunction="Pin_6" pintype="passive"/>
+      <node ref="J3" pin="6" pinfunction="Pin_6" pintype="passive"/>
+      <node ref="U1" pin="1" pinfunction="VCC" pintype="power_in"/>
+    </net>
+    <net code="8" name="Net-(U1-Pad4)">
+      <node ref="J1" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="U1" pin="4" pinfunction="~{RESET}/PB3" pintype="bidirectional"/>
+    </net>
+    <net code="9" name="Net-(U1-Pad5)">
+      <node ref="D1" pin="4" pinfunction="DIN" pintype="input"/>
+      <node ref="U1" pin="5" pinfunction="PB2" pintype="bidirectional"/>
+    </net>
+    <net code="10" name="Net-(U1-Pad6)">
+      <node ref="J3" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="U1" pin="6" pinfunction="PA7" pintype="bidirectional"/>
+    </net>
+    <net code="11" name="Net-(U1-Pad7)">
+      <node ref="J1" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="J2" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="J3" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="U1" pin="7" pinfunction="PA6" pintype="bidirectional"/>
+    </net>
+    <net code="12" name="Net-(U1-Pad8)">
+      <node ref="J3" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="U1" pin="8" pinfunction="PA5" pintype="bidirectional"/>
+    </net>
+    <net code="13" name="Net-(U1-Pad9)">
+      <node ref="J1" pin="5" pinfunction="Pin_5" pintype="passive"/>
+      <node ref="J2" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="J3" pin="2" pinfunction="Pin_2" pintype="passive"/>
+      <node ref="U1" pin="9" pinfunction="PA4" pintype="bidirectional"/>
+    </net>
+    <net code="14" name="Net-(U1-Pad10)">
+      <node ref="J2" pin="4" pinfunction="Pin_4" pintype="passive"/>
+      <node ref="U1" pin="10" pinfunction="PA3" pintype="bidirectional"/>
+    </net>
+    <net code="15" name="Net-(U1-Pad11)">
+      <node ref="J2" pin="3" pinfunction="Pin_3" pintype="passive"/>
+      <node ref="U1" pin="11" pinfunction="PA2" pintype="bidirectional"/>
+    </net>
+    <net code="16" name="Net-(U1-Pad14)">
+      <node ref="D1" pin="3" pinfunction="VSS" pintype="power_in"/>
+      <node ref="D3" pin="3" pinfunction="VSS" pintype="power_in"/>
+      <node ref="D4" pin="3" pinfunction="VSS" pintype="power_in"/>
+      <node ref="D6" pin="3" pinfunction="VSS" pintype="power_in"/>
+      <node ref="J1" pin="6" pinfunction="Pin_6" pintype="passive"/>
+      <node ref="J2" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="J3" pin="1" pinfunction="Pin_1" pintype="passive"/>
+      <node ref="U1" pin="14" pinfunction="GND" pintype="power_in"/>
+    </net>
+    <net code="17" name="unconnected-(D6-Pad2)">
+      <node ref="D6" pin="2" pinfunction="DOUT" pintype="output+no_connect"/>
+    </net>
+    <net code="18" name="unconnected-(U1-Pad2)">
+      <node ref="U1" pin="2" pinfunction="XTAL1/PB0" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="19" name="unconnected-(U1-Pad3)">
+      <node ref="U1" pin="3" pinfunction="XTAL2/PB1" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="20" name="unconnected-(U1-Pad12)">
+      <node ref="U1" pin="12" pinfunction="PA1" pintype="bidirectional+no_connect"/>
+    </net>
+    <net code="21" name="unconnected-(U1-Pad13)">
+      <node ref="U1" pin="13" pinfunction="AREF/PA0" pintype="bidirectional+no_connect"/>
+    </net>
+  </nets>
+</export>
